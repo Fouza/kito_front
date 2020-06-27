@@ -95,16 +95,56 @@ const Calendrier: React.FC<AccueilProps> = ({ name }) => {
       date: "YYYY-MM-DD",
     },
   ]);
-  const [events, setEvents] = useState();
+  const [events, setEvents] = useState([]);
   const [date, setDate] = useState("");
-
-  mobiscroll.util.getJson(
-    "https://trial.mobiscroll.com/events/",
-    (events) => {
-      setEvents(events);
-    },
-    "jsonp"
-  );
+  // mobiscroll.util.getJson(
+  //   "https://trial.mobiscroll.com/events/",
+  //   (events) => {
+  //     setEvents(events);
+  //   },
+  //   "jsonp"
+  // );
+  async function getExercisePerformed() {
+    let config = {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    };
+    await axios
+      .get(
+        `http://localhost:888/api/service/user/${localStorage.getItem(
+          "id"
+        )}/getListExercisePerformed`,
+        config
+      )
+      .then((res) => {
+        // console.log(res.data);
+        let events: any = [
+          {
+            start: "",
+            end: "",
+            text: "",
+            color: "#f67944",
+          },
+        ];
+        res.data.map((exo: any) => {
+          let event = {
+            start: "",
+            end: "",
+            text: "",
+            color: "#f67944",
+          };
+          event.start = exo.date;
+          event.end = exo.date;
+          event.text = exo.exercise.name;
+          events.push(event);
+        });
+        events = events.splice(1, events.length);
+        setEvents(events);
+      })
+      .catch((err) => console.log(err));
+  }
   const datetimeResponsive = {
     xsmall: {
       dateWheels: "|D M d|",
@@ -152,7 +192,6 @@ const Calendrier: React.FC<AccueilProps> = ({ name }) => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     };
-
     await axios
       .get(
         `http://localhost:888/api/service/user/${localStorage.getItem(
@@ -254,6 +293,7 @@ const Calendrier: React.FC<AccueilProps> = ({ name }) => {
 
   useEffect(() => {
     getExercisePerformedToday();
+    getExercisePerformed();
     getFoodEatenToday();
   }, []);
 

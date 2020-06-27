@@ -160,3 +160,7 @@
   /* display: table; */
   padding: 0;
 }
+
+.circle-row {
+  height: 500px;
+}
